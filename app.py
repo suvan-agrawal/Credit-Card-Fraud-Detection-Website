@@ -94,6 +94,122 @@ def predict_fraud(amount, transaction_type, merchant_category, country, hour):
             'message': f'Error: {str(e)}'
         }
 
+def get_fraud_explanation(amount, transaction_type, merchant_category, country, hour, 
+                         is_night, is_high, fraud_probability):
+    """
+    Generate explanation for why transaction was flagged as fraud
+    Uses feature importance from Random Forest
+    """
+    
+    # Feature importance from Random Forest (from training)
+    feature_importance = {
+        'amount': 0.35,
+        'merchant_category_enc': 0.22,
+        'country_enc': 0.18,
+        'is_high_amount': 0.12,
+        'is_night': 0.08,
+        'hour': 0.03,
+        'transaction_type_enc': 0.02
+    }
+    
+    # Risk indicators with their contributions
+    risk_factors = []
+    
+    # Check Amount
+    if amount > 3000:
+        risk_factors.append({
+            'factor': 'Very High Amount',
+            'value': f'${amount:,.2f}',
+            'importance': feature_importance['amount'],
+            'risk_level': 'high'
+        })
+    elif amount > 1000:
+        risk_factors.append({
+            'factor': 'High Amount',
+            'value': f'${amount:,.2f}',
+            'importance': feature_importance['amount'],
+            'risk_level': 'medium'
+        })
+    
+    # Check Time
+    if is_night == 1:
+        if hour <= 5:
+            risk_factors.append({
+                'factor': 'Very Late Night Transaction',
+                'value': f'{hour}:00 AM',
+                'importance': feature_importance['is_night'],
+                'risk_level': 'high'
+            })
+        else:
+            risk_factors.append({
+                'factor': 'Late Night Transaction',
+                'value': f'{hour}:00 PM',
+                'importance': feature_importance['is_night'],
+                'risk_level': 'medium'
+            })
+    
+    # Check Country (high-risk countries)
+    if country in ['NG', 'TR']:
+        risk_factors.append({
+            'factor': 'High-Risk Country',
+            'value': country,
+            'importance': feature_importance['country_enc'],
+            'risk_level': 'high'
+        })
+    
+    # Check Merchant Category (high-risk categories)
+    if merchant_category in ['Travel', 'Electronics']:
+        risk_factors.append({
+            'factor': 'High-Risk Merchant Category',
+            'value': merchant_category,
+            'importance': feature_importance['merchant_category_enc'],
+            'risk_level': 'medium'
+        })
+    
+    # Check Transaction Type
+    if transaction_type in ['ATM', 'Online']:
+        risk_factors.append({
+            'factor': 'Risky Transaction Type',
+            'value': transaction_type,
+            'importance': feature_importance['transaction_type_enc'],
+            'risk_level': 'medium'
+        })
+    
+    # Sort by importance
+    risk_factors.sort(key=lambda x: x['importance'], reverse=True)
+    
+    # Take top 3
+    top_factors = risk_factors[:3]
+    
+    # Generate protective factors if low fraud probability
+    protective_factors = []
+    if fraud_probability < 30:
+        if amount < 500:
+            protective_factors.append({
+                'factor': 'Low Transaction Amount',
+                'value': f'${amount:,.2f}',
+                'importance': feature_importance['amount']
+            })
+        
+        if is_night == 0:
+            protective_factors.append({
+                'factor': 'Normal Business Hours',
+                'value': f'{hour}:00',
+                'importance': feature_importance['is_night']
+            })
+        
+        if country in ['US', 'UK', 'FR', 'DE']:
+            protective_factors.append({
+                'factor': 'Low-Risk Country',
+                'value': country,
+                'importance': feature_importance['country_enc']
+            })
+        
+        protective_factors.sort(key=lambda x: x['importance'], reverse=True)
+        top_factors = protective_factors[:3]
+    
+    return top_factors
+
 @app.route('/')
 def home():
     """Render the main page with dynamic options"""
@@ -150,6 +266,16 @@ def predict():
         # Add timestamp
         result['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if result['success']:
+            is_night = 1 if (hour <= 5 or hour >= 22) else 0
+            is_high = 1 if amount > 1000 else 0
+            
+            # Get explanation
+            explanation = get_fraud_explanation(
+                amount, transaction_type, merchant_category, country, hour,
+                is_night, is_high, result['fraud_probability']
+            )
+            result['explanation'] = explanation
+            # save to database
             save_prediction(
                 amount=amount,
                 transaction_type=transaction_type,

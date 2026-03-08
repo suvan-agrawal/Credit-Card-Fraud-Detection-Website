@@ -121,7 +121,43 @@ function displayResult(result, formData) {
     
     riskLevel.textContent = result.risk_level;
     riskBadge.style.background = result.risk_color;
+    // ⭐ ADD THIS: Display Explanation
+if (result.explanation && result.explanation.length > 0) {
+    const explanationSection = document.getElementById('explanationSection');
+    const explanationList = document.getElementById('explanationList');
     
+    explanationSection.style.display = 'block';
+    explanationList.innerHTML = '';
+    
+    result.explanation.forEach((item, index) => {
+        const icon = item.risk_level === 'high' ? '🚨' : 
+                     item.risk_level === 'medium' ? '⚠️' : '✅';
+        
+        const riskClass = item.risk_level || 'low';
+        
+        const explanationItem = document.createElement('div');
+        explanationItem.className = `explanation-item risk-${riskClass}`;
+        explanationItem.innerHTML = `
+            <div class="explanation-icon">${icon}</div>
+            <div class="explanation-content">
+                <div class="explanation-factor">${item.factor}</div>
+                <div class="explanation-value">Value: ${item.value}</div>
+                <div class="explanation-importance">
+                    Importance: ${(item.importance * 100).toFixed(1)}%
+                    <span class="explanation-badge ${riskClass}">
+                        ${riskClass === 'high' ? 'High Risk' : riskClass === 'medium' ? 'Medium Risk' : 'Low Risk'}
+                    </span>
+                </div>
+            </div>
+        `;
+        explanationList.appendChild(explanationItem);
+    });
+} else {
+    document.getElementById('explanationSection').style.display = 'none';
+}
+
+// Transaction summary (existing code continues here...)
+document.getElementById('summaryAmount').textContent = '$' + formData.amount.toFixed(2);
     // Transaction summary
     document.getElementById('summaryAmount').textContent = '$' + formData.amount.toFixed(2);
     document.getElementById('summaryType').textContent = formData.transaction_type;
@@ -146,6 +182,8 @@ function resetForm() {
     // Hide result card, keep form centered
     resultCard.style.display = 'none';
     formCard.style.display = 'block';
+    document.getElementById('explanationSection').style.display = 'none';
+
     
     // Restore current hour
     document.getElementById('hour').value = new Date().getHours();
