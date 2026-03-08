@@ -20,9 +20,11 @@
                 <h1>Fraud Detection System</h1>
             </div>
             <p class="subtitle">AI-Powered Transaction Security</p>
-            <div style="margin-top: 20px;">
-                <a href="/history">📊 View Prediction History</a>
-            </div>
+            <nav class="header-nav">
+                <a href="/history" class="nav-link">📊 History</a>
+                <a href="/metrics" class="nav-link">📈 Performance</a>
+            </nav>
+            
         </header>
 
         <!-- Main Content -->
@@ -199,6 +201,8 @@
             <p>Analyzing transaction...</p>
         </div>
     </div>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" role="alert"></div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>

@@ -2,6 +2,11 @@
 // FRAUD DETECTION SYSTEM - JAVASCRIPT
 // ============================================
 
+// Auto-populate hour with current time on page load
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('hour').value = new Date().getHours();
+});
+
 // Get form elements
 const fraudForm = document.getElementById('fraudForm');
 const loadingOverlay = document.getElementById('loadingOverlay');
@@ -25,7 +30,7 @@ fraudForm.addEventListener('submit', async (e) => {
     if (!formData.amount || !formData.transaction_type || 
         !formData.merchant_category || !formData.country || 
         formData.hour === null || formData.hour === undefined) {
-        alert('Please fill in all fields');
+        showToast('⚠️ Please fill in all fields', 'warning');
         return;
     }
     
@@ -51,12 +56,12 @@ fraudForm.addEventListener('submit', async (e) => {
             // Display results
             displayResult(result, formData);
         } else {
-            alert('Error: ' + result.message);
+            showToast('❌ ' + result.message, 'error');
         }
         
     } catch (error) {
         loadingOverlay.classList.remove('active');
-        alert('Network error. Please try again.');
+        showToast('❌ Network error. Please try again.', 'error');
         console.error('Error:', error);
     }
 });
@@ -147,6 +152,15 @@ function resetForm() {
     
     // Scroll to form
     formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Show a toast notification
+function showToast(message, type = 'error') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast ${type} show`;
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 4000);
 }
 
 // Auto-fill current hour on page load

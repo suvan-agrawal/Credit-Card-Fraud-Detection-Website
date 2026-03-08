@@ -189,7 +189,25 @@ def history():
                          predictions=predictions,
                          stats=stats)
 
-
+@app.route('/metrics')
+def metrics():
+    """Show model performance metrics page"""
+    import json
+    
+    # Load metrics from JSON file
+    try:
+        with open('model_metrics.json', 'r') as f:
+            metrics_data = json.load(f)
+    except FileNotFoundError:
+        # Fallback if file doesn't exist
+        metrics_data = {
+            'models': [],
+            'selected_model': 'Random Forest',
+            'dataset_info': {},
+            'feature_importance': {}
+        }
+    
+    return render_template('metrics.html', metrics=metrics_data)
 
 @app.route('/health')
 def health():
