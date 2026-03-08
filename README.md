@@ -548,11 +548,7 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
 
 ## 🙏 Acknowledgments
 
@@ -562,15 +558,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support
 
-If you encounter any issues or have questions:
-
-- 🐛 **Report Bugs**: [Open an issue](https://github.com/yourusername/credit-card-fraud-detection/issues)
-- 💡 **Request Features**: [Feature request](https://github.com/yourusername/credit-card-fraud-detection/issues)
-- 📧 **Email**: [your.email@example.com](mailto:your.email@example.com)
-
----
 
 <div align="center">
 
