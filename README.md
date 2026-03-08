@@ -530,9 +530,9 @@ curl -X POST http://localhost:5000/predict \
 
 **Suvan Agrawal**
 
-📧 Email: [your.email@example.com](mailto:your.email@example.com)  
-🔗 LinkedIn: [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)  
-🐙 GitHub: [github.com/yourusername](https://github.com/yourusername)
+📧 Email: [your.email@example.com](suvssextras@gmail.com)  
+🔗 LinkedIn: [linkedin.com/in/yourprofile](https://www.linkedin.com/in/suvan-agrawal/)  
+🐙 GitHub: [github.com/yourusername](https://github.com/suvan-agrawal)
 
 ---
 
