@@ -63,12 +63,12 @@ fraudForm.addEventListener('submit', async (e) => {
 
 // Display prediction result
 function displayResult(result, formData) {
-    // Hide form, show result
-    formCard.style.display = 'none';
+    // Show result card next to form (flex side-by-side)
     resultCard.style.display = 'block';
+    formCard.style.display = 'block';
     
-    // Scroll to result
-    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Scroll to top of main content
+    document.querySelector('.main-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
     
     // Set timestamp
     document.getElementById('timestamp').textContent = result.timestamp;
@@ -138,9 +138,12 @@ function resetForm() {
     // Reset form fields
     fraudForm.reset();
     
-    // Hide result, show form
+    // Hide result card, keep form centered
     resultCard.style.display = 'none';
     formCard.style.display = 'block';
+    
+    // Restore current hour
+    document.getElementById('hour').value = new Date().getHours();
     
     // Scroll to form
     formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });

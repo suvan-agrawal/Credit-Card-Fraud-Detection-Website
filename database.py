@@ -108,6 +108,5 @@ def clear_all_predictions():
     conn.close()
     print("✅ All predictions cleared!")
 
-# Initialize database when module is imported
-if not os.path.exists(DATABASE_PATH):
-    init_database()
+# Initialize database when module is imported (idempotent - uses CREATE TABLE IF NOT EXISTS)
+init_database()

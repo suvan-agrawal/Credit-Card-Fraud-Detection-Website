@@ -2,12 +2,13 @@ from flask import Flask, render_template, request, jsonify
 import pickle
 import pandas as pd
 from datetime import datetime
-
+from database import save_prediction, get_recent_predictions, get_prediction_stats, init_database
 app = Flask(__name__)
 
 # Load the model package once when server starts
 print("Loading model package...")
-package = pickle.load(open('model/fraud_detection_complete.pkl', 'rb'))
+with open('model/fraud_detection_complete.pkl', 'rb') as f:
+    package = pickle.load(f)
 model = package['model']
 scaler = package['scaler']
 le_transaction = package['le_transaction']
@@ -125,7 +126,7 @@ def predict():
         hour = int(data.get('hour'))
         
         # Validate inputs
-        if not all([amount, transaction_type, merchant_category, country, hour is not None]):
+        if not transaction_type or not merchant_category or not country:
             return jsonify({
                 'success': False,
                 'message': 'All fields are required'
@@ -148,7 +149,17 @@ def predict():
         
         # Add timestamp
         result['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        
+        if result['success']:
+            save_prediction(
+                amount=amount,
+                transaction_type=transaction_type,
+                merchant_category=merchant_category,
+                country=country,
+                hour=hour,
+                is_fraud=result['is_fraud'],
+                fraud_probability=result['fraud_probability'],
+                risk_level=result['risk_level']
+            )
         return jsonify(result)
     
     except ValueError as e:
@@ -161,6 +172,24 @@ def predict():
             'success': False,
             'message': f'Server error: {str(e)}'
         }), 500
+
+@app.route('/api/stats')
+def api_stats():
+    """API endpoint for statistics"""
+    stats = get_prediction_stats()
+    return jsonify(stats)
+
+@app.route('/history')
+def history():
+    """Show prediction history page"""
+    predictions = get_recent_predictions(limit=20)
+    stats = get_prediction_stats()
+    
+    return render_template('history.html', 
+                         predictions=predictions,
+                         stats=stats)
+
+
 
 @app.route('/health')
 def health():
@@ -176,4 +205,5 @@ def health():
     })
 
 if __name__ == '__main__':
+    init_database()
     app.run(debug=True, host='0.0.0.0', port=5000)
