@@ -395,5 +395,16 @@ def api_performance():
     return jsonify(performance)
 
 if __name__ == '__main__':
+    # Initialize database
     init_database()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    
+    # Run app (production-ready settings for Docker)
+    import os
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    
+    app.run(
+        debug=debug_mode,
+        host='0.0.0.0',  # Important for Docker!
+        port=5000,
+        threaded=True
+    )
