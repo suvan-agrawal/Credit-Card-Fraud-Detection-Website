@@ -348,6 +348,52 @@ def health():
         }
     })
 
+@app.route('/api/model/version')
+def model_version():
+    """Get current model version info"""
+    from model_version import get_current_version
+    
+    version = get_current_version()
+    if version:
+        return jsonify({
+            'success': True,
+            'version': version
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'message': 'No version information available'
+        })
+
+
+@app.route('/monitoring')
+def monitoring_dashboard():
+    """Monitoring dashboard page"""
+    from monitoring import get_model_health, get_performance_metrics
+    
+    health = get_model_health()
+    performance = get_performance_metrics()
+    
+    return render_template('monitoring.html', 
+                         health=health,
+                         performance=performance)
+
+@app.route('/api/monitoring/health')
+def api_health():
+    """API endpoint for health check"""
+    from monitoring import get_model_health
+    
+    health = get_model_health()
+    return jsonify(health)
+
+@app.route('/api/monitoring/performance')
+def api_performance():
+    """API endpoint for performance metrics"""
+    from monitoring import get_performance_metrics
+    
+    performance = get_performance_metrics()
+    return jsonify(performance)
+
 if __name__ == '__main__':
     init_database()
     app.run(debug=True, host='0.0.0.0', port=5000)

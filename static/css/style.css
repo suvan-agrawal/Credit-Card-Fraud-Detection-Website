@@ -115,7 +115,7 @@ body::after {
 .header-nav {
     display: flex;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     margin-top: 20px;
     flex-wrap: wrap;
 }
@@ -127,7 +127,7 @@ body::after {
     background: rgba(255,255,255,0.10);
     backdrop-filter: blur(10px);
     color: white;
-    padding: 11px 26px;
+    padding: 10px 20px;
     border-radius: 50px;
     text-decoration: none;
     font-weight: 600;
@@ -135,6 +135,11 @@ body::after {
     border: 1px solid rgba(255,255,255,0.2);
     transition: all 0.3s ease;
     letter-spacing: 0.2px;
+}
+
+.nav-link:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.7);
+    outline-offset: 2px;
 }
 
 .nav-link:hover {
@@ -160,6 +165,15 @@ body::after {
 
 .strip-divider {
     opacity: 0.3;
+}
+
+.explanation-title {
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
 }
 
 /* ---- Main Content — centered by default, side-by-side when result shows ---- */
@@ -669,6 +683,8 @@ select {
     .logo { padding: 12px 20px; }
     .card { padding: 28px 22px; min-width: 0; }
     .summary-grid { grid-template-columns: 1fr; }
+    .stats-strip { gap: 8px; font-size: 0.75rem; }
+    .strip-divider { display: none; }
 }
 /* Explainability Section */
 .explanation-section {
