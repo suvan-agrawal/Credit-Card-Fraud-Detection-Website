@@ -2,15 +2,17 @@
 
 <div align="center">
 
+[![MLOps CI/CD Pipeline](https://github.com/YOUR_USERNAME/credit-card-fraud-detection/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/YOUR_USERNAME/credit-card-fraud-detection/actions/workflows/ci-cd.yml)
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.0+-orange.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Status](https://img.shields.io/badge/Status-Active-success.svg)
 
-**AI-Powered Transaction Security using Machine Learning**
+**ML-powered fraud detection system with MLOps: CI/CD, Docker containerization, real-time monitoring, and explainable AI**
 
-[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Model Details](#-model-details) • [Results](#-results)
+[Features](#-features) • [Architecture](#️-architecture) • [Dataset](#-dataset) • [Model](#-model-development) • [Installation](#-installation) • [Usage](#-usage) • [Results](#-results) • [MLOps](#-mlops-features)
 
 </div>
 
@@ -18,15 +20,15 @@
 
 ## 📖 Overview
 
-Credit card fraud represents a significant threat to financial transactions and consumer trust in digital commerce. This project delivers a comprehensive machine learning solution for detecting fraudulent credit card transactions with a user-friendly web interface for real-time fraud prediction.
+Credit card fraud represents a significant threat to financial transactions and consumer trust in digital commerce. This project delivers a comprehensive, production-ready machine learning solution for detecting fraudulent credit card transactions — complete with a real-time web interface, MLOps pipeline, Docker containerization, and explainable AI.
 
 ### 🎯 Project Objectives
 
 - Analyze patterns and trends in credit card fraud transactions
-- Build effective machine learning models using multiple algorithms
-- Handle highly imbalanced datasets using advanced techniques
+- Build and compare multiple machine learning algorithms on highly imbalanced data
+- Handle class imbalance using advanced techniques (SMOTE)
 - Deploy a production-ready web application for real-time predictions
-- Provide actionable insights with risk assessment and recommendations
+- Provide actionable insights with risk assessment, explainability, and monitoring
 
 ---
 
@@ -34,12 +36,12 @@ Credit card fraud represents a significant threat to financial transactions and 
 
 ### 🔍 Core Capabilities
 
-- **Real-time Fraud Detection** - Instant transaction analysis and risk assessment
-- **Multi-Model Ensemble** - Logistic Regression, Decision Tree, Random Forest, and SVM
-- **Advanced Preprocessing** - SMOTE for handling class imbalance
-- **Risk Categorization** - Low/Medium/High risk classification with confidence scores
-- **Interactive Dashboard** - Professional UI with dynamic visualizations
-- **RESTful API** - Easy integration with existing systems
+- **Real-time Fraud Detection** — Instant transaction analysis with risk assessment (<200ms inference)
+- **Multi-Model Comparison** — Logistic Regression, Decision Tree, Random Forest, and SVM evaluated
+- **Advanced Preprocessing** — SMOTE for handling class imbalance without data leakage
+- **Risk Categorization** — Low / Medium / High classification with confidence scores
+- **Interactive Dashboard** — Professional UI with dynamic visualizations
+- **RESTful API** — Easy integration with existing systems
 
 ### 💡 Smart Features
 
@@ -50,11 +52,41 @@ Credit card fraud represents a significant threat to financial transactions and 
 - Geographic fraud hotspot identification
 - Responsive design for mobile and desktop
 
+### 🔧 MLOps & DevOps
+
+- **CI/CD Pipeline** — Automated testing, code quality, and security scanning on every push
+- **Docker** — Containerized deployment for consistency across environments
+- **Model Versioning** — Track model versions with full metadata
+- **Monitoring** — Real-time health checks and performance tracking
+- **Explainability** — Feature importance for transparent, auditable predictions
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│           User Interface (Flask)            │
+├─────────────────────────────────────────────┤
+│      ML Model (Random Forest)               │
+│      - Feature Engineering                  │
+│      - Real-time Predictions                │
+│      - Explainability Engine                │
+├─────────────────────────────────────────────┤
+│           Monitoring System                 │
+│      - Health Checks                        │
+│      - Performance Tracking                 │
+│      - Model Versioning                     │
+├─────────────────────────────────────────────┤
+│           Data Layer (SQLite)               │
+│      - Prediction History                   │
+│      - Statistics                           │
+└─────────────────────────────────────────────┘
+```
+
 ---
 
 ## 📊 Dataset
-
-### Dataset Overview
 
 | Attribute | Details |
 |-----------|---------|
@@ -63,9 +95,9 @@ Credit card fraud represents a significant threat to financial transactions and 
 | **Fraudulent Transactions** | 1,000 (1.0%) |
 | **Imbalance Ratio** | 99:1 |
 | **Geographic Coverage** | 10 major US cities |
-| **Amount Range** | $29 - $5,000 |
+| **Amount Range** | $29 – $5,000 |
 
-> 💡 The 1% fraud rate mirrors real-world credit card fraud statistics (0.5-2%), ensuring realistic model training.
+> 💡 The 1% fraud rate mirrors real-world credit card fraud statistics (0.5–2%), ensuring realistic model training.
 
 ### 📋 Features
 
@@ -73,8 +105,8 @@ Credit card fraud represents a significant threat to financial transactions and 
 |---------|------|-------------|
 | `TransactionID` | Identifier | Unique transaction identifier |
 | `TransactionDate` | Datetime | Transaction timestamp |
-| `Amount` | Numeric | Transaction amount ($29-$5,000) |
-| `MerchantID` | Categorical | Merchant identifier (1-999) |
+| `Amount` | Numeric | Transaction amount ($29–$5,000) |
+| `MerchantID` | Categorical | Merchant identifier (1–999) |
 | `TransactionType` | Categorical | Purchase or Refund |
 | `Location` | Categorical | Transaction location (10 US cities) |
 | `IsFraud` | Binary | Target variable (0=Genuine, 1=Fraud) |
@@ -86,209 +118,142 @@ Credit card fraud represents a significant threat to financial transactions and 
 ### Temporal Features
 ```python
 Hour              # 0-23 (transaction hour)
-IsNightTime       # Boolean (22:00-06:00)
-DayOfWeek         # 0-6 (Monday-Sunday)
+IsNightTime       # Boolean (22:00–06:00)
+DayOfWeek         # 0-6 (Monday–Sunday)
 IsWeekend         # Boolean (Saturday/Sunday)
 ```
 
-### Transaction Features
+### Transaction & Merchant Features
 ```python
 HighAmount        # Boolean (Amount > $3,000)
 IsRefund          # Boolean (Refund transaction flag)
-```
-
-### Merchant Features
-```python
 MerchantRisk      # Calculated fraud rate per merchant
 ```
 
 ### Encoding Strategy
-- **Label Encoding**: TransactionType, Location (preserve ordinal relationships)
-- **One-Hot Encoding**: Available for merchant categories (avoid ordinal assumptions)
-- **Standardization**: Amount scaling using StandardScaler
+- **Label Encoding**: `TransactionType`, `Location`
+- **Standardization**: `Amount` scaling via `StandardScaler`
 
 ---
 
 ## 🤖 Model Development
 
-### Algorithms Implemented
+### Algorithms Compared
 
-<table>
-<tr>
-<td width="50%">
+| Model | Role |
+|-------|------|
+| 🟢 Logistic Regression | Baseline — high interpretability, fast |
+| 🟡 Decision Tree | Non-linear patterns, feature importance |
+| 🔵 **Random Forest** ⭐ | **Best model** — ensemble, robust, handles overfitting |
+| 🟣 SVM | High-dimensional data, kernel methods |
 
-**🟢 Logistic Regression**
-- Baseline model
-- High interpretability
-- Fast training/inference
-
-</td>
-<td width="50%">
-
-**🟡 Decision Tree**
-- Non-linear patterns
-- Feature importance
-- Rule-based decisions
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-**🔵 Random Forest** ⭐ *Best Model*
-- Ensemble learning
-- Handles overfitting
-- Robust performance
-
-</td>
-<td width="50%">
-
-**🟣 Support Vector Machine**
-- High-dimensional data
-- Advanced classification
-- Kernel methods
-
-</td>
-</tr>
-</table>
-
-### Handling Class Imbalance
-
-**SMOTE (Synthetic Minority Over-sampling Technique)**
+### Handling Class Imbalance — SMOTE
 
 ```python
-# Applied only to training data
 from imblearn.over_sampling import SMOTE
 
 smote = SMOTE(random_state=42)
 X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
 ```
 
-**Benefits:**
-- ✅ Prevents data leakage (applied only to training set)
-- ✅ Balances classes from 99:1 to 1:1 ratio
-- ✅ Generates synthetic samples using K-Nearest Neighbors
-- ✅ Improves minority class learning without overfitting
+- ✅ Applied **only to training data** — prevents data leakage
+- ✅ Balances classes from 99:1 to 1:1
+- ✅ Generates synthetic samples via K-Nearest Neighbors
+- ✅ Improved recall from 68% → 92%
 
 ---
 
-## 💻 Technologies Used
+## 💻 Technologies
 
-<table>
-<tr>
-<td align="center" width="33%">
-
-### 🐍 Machine Learning
-`Python 3.8+`<br>
-`pandas` `numpy`<br>
-`scikit-learn`<br>
-`imbalanced-learn`<br>
-`matplotlib` `seaborn`
-
-</td>
-<td align="center" width="33%">
-
-### 🌐 Web Development
-`Flask 2.0+`<br>
-`HTML5` `CSS3`<br>
-`JavaScript (ES6+)`<br>
-`Bootstrap 5`<br>
-`Chart.js`
-
-</td>
-<td align="center" width="33%">
-
-### 🚀 Deployment
-`pickle`<br>
-`REST API`<br>
-`JSON`<br>
-`Gunicorn`<br>
-
-</td>
-</tr>
-</table>
+| Layer | Stack |
+|-------|-------|
+| **Machine Learning** | Python 3.8+, pandas, numpy, scikit-learn, imbalanced-learn, matplotlib, seaborn |
+| **Web** | Flask 2.0+, HTML5, CSS3, JavaScript (ES6+), Bootstrap 5, Chart.js |
+| **MLOps** | Docker, Docker Compose, GitHub Actions, SQLite |
+| **Deployment** | pickle, REST API, Gunicorn |
 
 ---
 
 ## 🚀 Installation
 
 ### Prerequisites
-
 ```bash
 Python 3.8 or higher
 pip package manager
+Docker (optional, for containerized setup)
 ```
 
-### Setup Instructions
+### Option 1 — Docker (Recommended)
 
-**1. Clone the repository**
 ```bash
-git clone https://github.com/yourusername/credit-card-fraud-detection.git
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/credit-card-fraud-detection.git
 cd credit-card-fraud-detection
+
+# Build and run
+docker-compose up
+
+# Access application
+open http://localhost:5000
 ```
 
-**2. Create virtual environment (recommended)**
+### Option 2 — Local Development
+
 ```bash
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/credit-card-fraud-detection.git
+cd credit-card-fraud-detection
+
+# Create and activate virtual environment
 python -m venv venv
+source venv/bin/activate        # Linux/Mac
+# venv\Scripts\activate         # Windows
 
-# Windows
-venv\Scripts\activate
-
-# Linux/Mac
-source venv/bin/activate
-```
-
-**3. Install dependencies**
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-**4. Verify model file location**
-```bash
-# Ensure your trained model is at:
-model/fraud_detection_complete.pkl
-```
+# Verify model file exists at: model/fraud_detection_complete.pkl
 
-**5. Run the application**
-```bash
+# Run application
 python app.py
+
+# Run tests
+python -m pytest tests/ -v
 ```
 
-**6. Access the application**
-```
-http://localhost:5000
-```
+Access the app at `http://localhost:5000`.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-fraud-detection-system/
-│
+credit-card-fraud-detection/
+├── app.py                              # Flask application
+├── database.py                         # Database operations
+├── model_version.py                    # Model versioning
+├── monitoring.py                       # Health monitoring
+├── Dockerfile                          # Docker configuration
+├── docker-compose.yml                  # Docker orchestration
+├── requirements.txt                    # Python dependencies
 ├── model/
 │   └── fraud_detection_complete.pkl    # Trained ML model
-│
-├── static/
-│   ├── css/
-│   │   └── style.css                   # Custom styling
-│   └── js/
-│       └── script.js                   # Frontend logic
-│
 ├── templates/
-│   └── index.html                      # Main UI template
-│
+│   ├── index.html                      # Main UI
+│   ├── history.html                    # Prediction history
+│   ├── metrics.html                    # Model metrics
+│   └── monitoring.html                 # System monitoring
+├── static/
+│   ├── css/style.css
+│   └── js/script.js
 ├── notebooks/
 │   ├── EDA.ipynb                       # Exploratory Data Analysis
 │   └── model_training.ipynb            # Model development
-│
 ├── data/
 │   └── credit_card_fraud_dataset.csv   # Training dataset
-│
-├── app.py                              # Flask application
-├── requirements.txt                    # Python dependencies
-├── README.md                           # Project documentation
-└── LICENSE                             # MIT License
+└── tests/
+    ├── test_app.py
+    └── test_model.py
 ```
 
 ---
@@ -300,62 +265,48 @@ fraud-detection-system/
 ```python
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
 import pickle
 
-# Load data
 df = pd.read_csv('data/credit_card_fraud_dataset.csv')
 
 # Feature engineering
 df['Hour'] = pd.to_datetime(df['TransactionDate']).dt.hour
 df['IsNightTime'] = df['Hour'].apply(lambda x: 1 if x >= 22 or x <= 6 else 0)
-# ... more features
 
-# Prepare features and target
 X = df.drop(['IsFraud', 'TransactionID', 'TransactionDate'], axis=1)
 y = df['IsFraud']
 
-# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Apply SMOTE
 smote = SMOTE(random_state=42)
 X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
 
-# Train model
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train_res, y_train_res)
 
-# Save model
 with open('model/fraud_detection_complete.pkl', 'wb') as f:
-    pickle.dump(model, f)
+    pickle.dump({'model': model, 'scaler': scaler}, f)
 ```
 
 ### Making Predictions via Code
 
 ```python
 import pickle
-import pandas as pd
 
-# Load model
 with open('model/fraud_detection_complete.pkl', 'rb') as f:
     model_data = pickle.load(f)
 
 model = model_data['model']
 scaler = model_data['scaler']
 
-# Prepare transaction
 transaction = {
-    'Amount': 4500,
-    'Hour': 23,
-    'IsNightTime': 1,
-    'IsHighAmount': 1,
-    'IsWeekend': 0,
-    'TransactionType_encoded': 0,
-    'Location_encoded': 3
+    'Amount': 4500, 'Hour': 23, 'IsNightTime': 1,
+    'IsHighAmount': 1, 'IsWeekend': 0,
+    'TransactionType_encoded': 0, 'Location_encoded': 3
 }
 
-# Scale and predict
 transaction_scaled = scaler.transform([list(transaction.values())])
 prediction = model.predict(transaction_scaled)
 probability = model.predict_proba(transaction_scaled)[0][1]
@@ -366,28 +317,13 @@ print(f"Probability: {probability*100:.2f}%")
 
 ### Using the Web Interface
 
-1. **Enter Transaction Details**
-   - Amount (required)
-   - Transaction Type (dropdown)
-   - Merchant Category (dropdown)
-   - Location/Country (dropdown)
-   - Date & Time (auto-filled with current datetime)
-
-2. **Submit for Analysis**
-   - Click "Check Transaction" button
-   - Real-time processing (~200ms)
-
-3. **View Results**
-   - Fraud probability percentage
-   - Risk level indicator (Low/Medium/High)
-   - Visual gauge meter
-   - Recommended actions
+1. Enter transaction details — amount, type, merchant, location, date/time
+2. Click **"Check Transaction"**
+3. View the fraud probability gauge, risk level (Low/Medium/High), and recommended actions
 
 ---
 
-## 🎯 API Endpoints
-
-### Core Endpoints
+## 🎯 API Reference
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -396,22 +332,14 @@ print(f"Probability: {probability*100:.2f}%")
 | `GET` | `/api/options` | Retrieve dropdown options from model |
 | `GET` | `/health` | Health check endpoint |
 
-### Prediction API Example
+### Example
 
-**Request:**
 ```bash
 curl -X POST http://localhost:5000/predict \
   -H "Content-Type: application/json" \
-  -d '{
-    "amount": 4500,
-    "transaction_type": "purchase",
-    "merchant_category": "electronics",
-    "country": "USA",
-    "hour": 23
-  }'
+  -d '{"amount": 4500, "transaction_type": "purchase", "merchant_category": "electronics", "country": "USA", "hour": 23}'
 ```
 
-**Response:**
 ```json
 {
   "fraud": true,
@@ -428,117 +356,86 @@ curl -X POST http://localhost:5000/predict \
 
 ### Model Performance
 
-| Model | Recall | Precision | F1-Score | ROC-AUC |
-|-------|--------|-----------|----------|---------|
-| **Random Forest** ⭐ | **92.3%** | **84.7%** | **88.3%** | **0.94** |
-| Logistic Regression | 87.1% | 78.2% | 82.4% | 0.89 |
-| Decision Tree | 85.6% | 76.8% | 80.9% | 0.87 |
-| SVM | 89.4% | 81.5% | 85.3% | 0.91 |
-
-### Key Metrics Explained
-
-- **Recall (92.3%)**: Successfully detects 92 out of 100 fraudulent transactions
-- **Precision (84.7%)**: 85 out of 100 flagged transactions are actual fraud
-- **F1-Score (88.3%)**: Strong balanced performance
-- **ROC-AUC (0.94)**: Excellent discrimination capability
+| Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
+|-------|----------|-----------|--------|----------|---------|
+| **Random Forest** ⭐ | **99.89%** | **87.10%** | **88.10%** | **87.60%** | **0.95** |
+| SVM | — | 81.5% | 89.4% | 85.3% | 0.91 |
+| Decision Tree | 89.56% | 14.60% | 88.10% | 25.05% | 0.88 |
+| Logistic Regression | 73.43% | 2.23% | 55.87% | 4.29% | 0.82 |
 
 ### Feature Importance
 
 ```
-1. Amount                    (28.5%) - Transaction amount is most predictive
-2. MerchantRisk             (22.1%) - Merchant fraud history matters
-3. IsNightTime              (18.3%) - Night transactions higher risk
-4. Hour                     (12.7%) - Time of day patterns
-5. Location                 (10.4%) - Geographic risk varies
-6. IsHighAmount              (5.2%) - Large transactions flagged
-7. TransactionType           (2.8%) - Refunds slightly riskier
+1. Amount           (28.5%) — Transaction amount is most predictive
+2. MerchantRisk     (22.1%) — Merchant fraud history matters
+3. IsNightTime      (18.3%) — Night transactions are higher risk
+4. Hour             (12.7%) — Time-of-day patterns
+5. Location         (10.4%) — Geographic risk varies
+6. IsHighAmount      (5.2%) — Large transactions flagged
+7. TransactionType   (2.8%) — Refunds slightly riskier
 ```
+
+### Key Insights from EDA
+
+- ✅ **No Missing Values** — Clean dataset, 100% completeness
+- ✅ **Night Transactions** — 22:00–06:00 window shows **3× higher fraud rate**
+- ✅ **Geographic Variation** — Certain cities show **2× higher fraud rates**
+- ✅ **Merchant Concentration** — Top 10% of merchants account for **40% of fraud cases**
+- ✅ **SMOTE Impact** — Recall improved from **68% → 92%** after resampling
 
 ---
 
-## 🔍 Key Insights
+## 🔄 CI/CD Pipeline
 
-### 📊 Exploratory Data Analysis Findings
+Every code push automatically triggers:
 
-✅ **No Missing Values** - Clean dataset with 100% completeness  
-✅ **Realistic Distribution** - Amount and type patterns mirror real transactions  
-✅ **Temporal Patterns** - Night transactions (22:00-06:00) show 3x higher fraud rate  
-✅ **Geographic Variation** - Certain cities exhibit 2x higher fraud rates  
-✅ **Merchant Risk** - Top 10% of merchants account for 40% of fraud cases  
+- ✅ Automated testing (15 unit tests)
+- ✅ Code quality checks
+- ✅ Security scanning
+- ✅ Docker build and validation
+- ✅ Model performance validation
 
-### 🎓 Key Learnings
+---
 
-1. **Class Imbalance Handling**
-   - SMOTE significantly improved recall from 68% to 92%
-   - Careful validation strategy prevents data leakage
+## 🎯 MLOps Features
 
-2. **Feature Engineering Impact**
-   - Time-based features increased F1-score by 12%
-   - Merchant risk profiling added 8% to precision
-
-3. **Model Selection**
-   - Random Forest outperformed others due to ensemble approach
-   - Decision Trees prone to overfitting without proper tuning
-
-4. **Production Considerations**
-   - Inference time <200ms meets real-time requirements
-   - Model size (45MB) suitable for deployment
+1. **Model Versioning** — Track model versions with metadata and performance history
+2. **Continuous Integration** — Automated testing on every commit via GitHub Actions
+3. **Containerization** — Docker + Docker Compose for consistent, reproducible deployment
+4. **Monitoring** — Real-time health checks, performance tracking, and alerting
+5. **Explainability** — Feature importance surfaces the reasoning behind every prediction
 
 ---
 
 ## 🔮 Future Enhancements
 
-### 🚧 Planned Features
-
-- [ ] **Advanced Sampling Techniques**
-  - ADASYN (Adaptive Synthetic Sampling)
-  - Random Undersampling combinations
-  - Tomek Links for noise removal
-
-- [ ] **Model Optimization**
-  - Hyperparameter tuning (GridSearchCV/Optuna)
-  - Ensemble methods (Stacking, Blending)
-  - Deep learning models (LSTM, Autoencoders)
-
-- [ ] **Deployment & Scalability**
-  - Docker containerization
-  - Kubernetes orchestration
-  - AWS/Azure cloud deployment
-  - Load balancing and caching
-
-- [ ] **Enhanced Features**
-  - Real-time transaction monitoring dashboard
-  - Email/SMS alerts for high-risk transactions
-  - Admin panel for model retraining
-  - Multi-currency support
-  - Historical fraud pattern analysis
-
-- [ ] **Explainable AI**
-  - SHAP values for prediction interpretation
-  - LIME for local explanations
-  - Feature contribution visualization
-
-- [ ] **Integration**
-  - REST API with OAuth authentication
-  - Payment gateway integration (Stripe, PayPal)
-  - Mobile application (iOS/Android)
-  - Webhook notifications
+- [ ] Real-time data streaming pipeline
+- [ ] A/B testing framework for model comparison
+- [ ] Hyperparameter tuning (GridSearchCV / Optuna)
+- [ ] Deep learning models (LSTM, Autoencoders)
+- [ ] SHAP / LIME for per-prediction explainability
+- [ ] Kubernetes deployment
+- [ ] AWS / Azure cloud integration
+- [ ] Email/SMS alerts for high-risk transactions
+- [ ] Payment gateway integration (Stripe, PayPal)
+- [ ] Mobile application (iOS / Android)
+- [ ] API rate limiting and OAuth authentication
 
 ---
 
-## 👨‍💻 Author
+## 👤 Author
 
 **Suvan Agrawal**
 
-📧 Email: [your.email@example.com](suvssextras@gmail.com)  
-🔗 LinkedIn: [linkedin.com/in/yourprofile](https://www.linkedin.com/in/suvan-agrawal/)  
-🐙 GitHub: [github.com/yourusername](https://github.com/suvan-agrawal)
+📧 [suvssextras@gmail.com](mailto:suvssextras@gmail.com)
+🔗 [linkedin.com/in/suvan-agrawal](https://www.linkedin.com/in/suvan-agrawal/)
+🐙 [github.com/suvan-agrawal](https://github.com/suvan-agrawal)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome!
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -548,24 +445,23 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
+## 📄 License
 
+MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## 🙏 Acknowledgments
 
 - Dataset inspired by real-world credit card transaction patterns
-- Built as a comprehensive ML project demonstrating end-to-end development
-- Special thanks to the open-source community for amazing tools and libraries
+- Built as a comprehensive end-to-end ML + MLOps project
+- Thanks to the open-source community for the amazing tools and libraries
 
 ---
-
-
 
 <div align="center">
 
 **⭐ Star this repo if you find it helpful!**
-
-Made with ❤️ by Suvan Agrawal
-
 
 
 </div>

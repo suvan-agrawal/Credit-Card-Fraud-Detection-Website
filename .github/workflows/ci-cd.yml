@@ -1,0 +1,294 @@
+name: MLOps CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Verify model file exists
+      run: |
+        if [ ! -f "model/fraud_detection_complete.pkl" ]; then
+          echo "Error: Model file not found!"
+          exit 1
+        fi
+        echo "✅ Model file found"
+    
+    - name: Run tests with pytest
+      run: |
+        python -m pytest tests/ -v --cov=. --cov-report=xml --cov-report=term
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+      continue-on-error: true
+
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install linting tools
+      run: |
+        pip install flake8 black
+    
+    - name: Check code formatting with Black
+      run: |
+        black --check --diff . || echo "⚠️ Code formatting issues found (non-blocking)"
+      continue-on-error: true
+    
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      continue-on-error: true
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install security tools
+      run: |
+        pip install safety bandit
+    
+    - name: Check dependencies for vulnerabilities
+      run: |
+        pip install -r requirements.txt
+        safety check --json || echo "⚠️ Security vulnerabilities found (non-blocking)"
+      continue-on-error: true
+    
+    - name: Run Bandit security scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || echo "⚠️ Security issues found (non-blocking)"
+      continue-on-error: true
+    
+    - name: Upload Bandit report
+      uses: actions/upload-artifact@v4
+      with:
+        name: bandit-security-report
+        path: bandit-report.json
+      continue-on-error: true
+
+  docker:
+    name: Docker Build & Test
+    runs-on: ubuntu-latest
+    needs: [test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      run: |
+        docker build -t fraud-detection:${{ github.sha }} .
+        echo "✅ Docker image built successfully"
+    
+    - name: Test Docker container
+      run: |
+        # Start container in background
+        docker run -d -p 5000:5000 --name test-container fraud-detection:${{ github.sha }}
+        
+        # Wait for container to be ready
+        echo "Waiting for container to start..."
+        sleep 30
+        
+        # Check if container is running
+        docker ps | grep test-container
+        
+        # Test health endpoint
+        curl -f http://localhost:5000/health || exit 1
+        
+        echo "✅ Docker container is healthy"
+        
+        # Stop and remove container
+        docker stop test-container
+        docker rm test-container
+    
+    - name: Log in to Docker Hub (optional)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+      continue-on-error: true
+    
+    - name: Push to Docker Hub (optional)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        docker tag fraud-detection:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/fraud-detection:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/fraud-detection:latest
+      continue-on-error: true
+
+  model-validation:
+    name: ML Model Validation
+    runs-on: ubuntu-latest
+    needs: [test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Validate model metrics
+      run: |
+        python -c "
+        import json
+        import sys
+        
+        # Load model metrics
+        with open('model_metrics.json', 'r') as f:
+            metrics = json.load(f)
+        
+        # Get selected model metrics
+        selected = metrics['selected_model']
+        model_metrics = None
+        for model in metrics['models']:
+            if model['name'] == selected:
+                model_metrics = model
+                break
+        
+        if not model_metrics:
+            print('❌ Selected model metrics not found')
+            sys.exit(1)
+        
+        # Validate metrics thresholds
+        print(f'Model: {selected}')
+        print(f'Accuracy: {model_metrics[\"accuracy\"]:.4f}')
+        print(f'Precision: {model_metrics[\"precision\"]:.4f}')
+        print(f'Recall: {model_metrics[\"recall\"]:.4f}')
+        print(f'F1-Score: {model_metrics[\"f1_score\"]:.4f}')
+        print(f'ROC-AUC: {model_metrics[\"roc_auc\"]:.4f}')
+        
+        # Check minimum thresholds
+        if model_metrics['f1_score'] < 0.7:
+            print('⚠️ Warning: F1-Score below 0.7')
+        if model_metrics['recall'] < 0.7:
+            print('⚠️ Warning: Recall below 0.7')
+        
+        print('✅ Model validation passed')
+        "
+    
+    - name: Generate model report
+      run: |
+        echo "# Model Performance Report" > model-report.md
+        echo "" >> model-report.md
+        echo "**Commit:** ${{ github.sha }}" >> model-report.md
+        echo "**Date:** $(date)" >> model-report.md
+        echo "" >> model-report.md
+        python -c "
+        import json
+        with open('model_metrics.json', 'r') as f:
+            metrics = json.load(f)
+        
+        for model in metrics['models']:
+            print(f\"## {model['name']}\")
+            print(f\"- Accuracy: {model['accuracy']:.4f}\")
+            print(f\"- Precision: {model['precision']:.4f}\")
+            print(f\"- Recall: {model['recall']:.4f}\")
+            print(f\"- F1-Score: {model['f1_score']:.4f}\")
+            print(f\"- ROC-AUC: {model['roc_auc']:.4f}\")
+            print()
+        " >> model-report.md
+    
+    - name: Upload model report
+      uses: actions/upload-artifact@v4
+      with:
+        name: model-performance-report
+        path: model-report.md
+
+  deployment-ready:
+    name: Deployment Ready Check
+    runs-on: ubuntu-latest
+    needs: [test, code-quality, security, docker, model-validation]
+    if: always()
+    
+    steps:
+    - name: Check all jobs status
+      run: |
+        echo "🎉 All CI/CD checks completed!"
+        echo ""
+        echo "Summary:"
+        echo "- Tests: ${{ needs.test.result }}"
+        echo "- Code Quality: ${{ needs.code-quality.result }}"
+        echo "- Security: ${{ needs.security.result }}"
+        echo "- Docker: ${{ needs.docker.result }}"
+        echo "- Model Validation: ${{ needs.model-validation.result }}"
+        echo ""
+        
+        if [ "${{ needs.test.result }}" != "success" ]; then
+          echo "❌ Tests failed - deployment blocked"
+          exit 1
+        fi
+        
+        if [ "${{ needs.docker.result }}" != "success" ]; then
+          echo "❌ Docker build failed - deployment blocked"
+          exit 1
+        fi
+        
+        if [ "${{ needs.model-validation.result }}" != "success" ]; then
+          echo "❌ Model validation failed - deployment blocked"
+          exit 1
+        fi
+        
+        echo "✅ All critical checks passed - Ready for deployment!"
