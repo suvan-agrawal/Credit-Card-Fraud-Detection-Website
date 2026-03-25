@@ -177,11 +177,10 @@ X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
 ## 🚀 Installation
 
 ### Prerequisites
-```bash
-Python 3.8 or higher
-pip package manager
-Docker (optional, for containerized setup)
-```
+- **Python 3.8+** — Language runtime
+- **pip** — Package manager
+- **Docker** — Optional, for containerized deployment
+- **Git** — For version control
 
 ### Option 1 — Docker (Recommended)
 
@@ -190,11 +189,13 @@ Docker (optional, for containerized setup)
 git clone https://github.com/YOUR_USERNAME/credit-card-fraud-detection.git
 cd credit-card-fraud-detection
 
-# Build and run
-docker-compose up
+# Build and run with Docker Compose
+docker-compose up --build
 
 # Access application
-open http://localhost:5000
+open http://localhost:5000      # macOS
+start http://localhost:5000     # Windows
+xdg-open http://localhost:5000  # Linux
 ```
 
 ### Option 2 — Local Development
@@ -212,8 +213,6 @@ source venv/bin/activate        # Linux/Mac
 # Install dependencies
 pip install -r requirements.txt
 
-# Verify model file exists at: model/fraud_detection_complete.pkl
-
 # Run application
 python app.py
 
@@ -229,31 +228,38 @@ Access the app at `http://localhost:5000`.
 
 ```
 credit-card-fraud-detection/
-├── app.py                              # Flask application
-├── database.py                         # Database operations
-├── model_version.py                    # Model versioning
-├── monitoring.py                       # Health monitoring
-├── Dockerfile                          # Docker configuration
-├── docker-compose.yml                  # Docker orchestration
+├── app.py                              # Flask web application
+├── database.py                         # SQLite database operations
+├── model_version.py                    # Model versioning and tracking
+├── monitoring.py                       # System health monitoring
+├── model_metrics.py                    # Performance metrics calculation
+├── Dockerfile                          # Docker container configuration
+├── docker-compose.yml                  # Docker Compose orchestration
+├── docker-entrypoint.sh                # Container startup script
 ├── requirements.txt                    # Python dependencies
-├── model/
-│   └── fraud_detection_complete.pkl    # Trained ML model
-├── templates/
-│   ├── index.html                      # Main UI
-│   ├── history.html                    # Prediction history
-│   ├── metrics.html                    # Model metrics
-│   └── monitoring.html                 # System monitoring
-├── static/
-│   ├── css/style.css
-│   └── js/script.js
-├── notebooks/
-│   ├── EDA.ipynb                       # Exploratory Data Analysis
-│   └── model_training.ipynb            # Model development
-├── data/
-│   └── credit_card_fraud_dataset.csv   # Training dataset
-└── tests/
-    ├── test_app.py
-    └── test_model.py
+├── README.md                           # This file
+├── model/                              # Trained ML models directory
+├── model notebook/
+│   └── Final Model fraud detection.ipynb   # Complete model development notebook
+├── Dataset/
+│   ├── credit_card_fraud_dataset.csv       # Main training dataset
+│   ├── fraud_dataset_100k.csv              # 100K transactions variant
+│   └── synthetic_fraud_dataset.csv         # Synthetic dataset for testing
+├── templates/                          # HTML templates
+│   ├── index.html                      # Main prediction interface
+│   ├── history.html                    # Prediction history viewer
+│   ├── metrics.html                    # Model metrics dashboard
+│   └── monitoring.html                 # System monitoring dashboard
+├── static/                             # Frontend assets
+│   ├── css/style.css                   # Styling
+│   └── js/script.js                    # Frontend logic
+├── monitoring_log.json/                # Monitoring logs storage
+├── model_metrics.json                  # Cached model metrics
+├── model_versions.json                 # Model version history
+└── tests/                              # Unit tests
+    ├── test_app.py                     # Flask application tests
+    ├── test_model.py                   # Model prediction tests
+    └── __init__.py
 ```
 
 ---
@@ -317,9 +323,11 @@ print(f"Probability: {probability*100:.2f}%")
 
 ### Using the Web Interface
 
-1. Enter transaction details — amount, type, merchant, location, date/time
-2. Click **"Check Transaction"**
-3. View the fraud probability gauge, risk level (Low/Medium/High), and recommended actions
+1. **Navigate** to `http://localhost:5000` in your browser
+2. **Enter transaction details** — amount, type, merchant, location, date/time
+3. **Click "Check Transaction"** to analyze
+4. **View results** including fraud probability gauge, risk level (Low/Medium/High), confidence score, and recommended actions
+5. **Historical data** — Check previous predictions in the History tab
 
 ---
 
@@ -328,9 +336,13 @@ print(f"Probability: {probability*100:.2f}%")
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/` | Main application page |
+| `GET` | `/metrics` | Model performance metrics dashboard |
+| `GET` | `/history` | Prediction history viewer |
+| `GET` | `/monitoring` | System monitoring dashboard |
 | `POST` | `/predict` | Submit transaction for fraud prediction |
 | `GET` | `/api/options` | Retrieve dropdown options from model |
 | `GET` | `/health` | Health check endpoint |
+| `GET` | `/api/metrics` | Retrieve model metrics (JSON) |
 
 ### Example
 
@@ -409,17 +421,23 @@ Every code push automatically triggers:
 
 ## 🔮 Future Enhancements
 
+**Phase 1 — Enhanced Monitoring**
 - [ ] Real-time data streaming pipeline
+- [ ] Email/SMS alerts for high-risk transactions
+- [ ] Enhanced visualization dashboards
+
+**Phase 2 — Model Improvements**
 - [ ] A/B testing framework for model comparison
 - [ ] Hyperparameter tuning (GridSearchCV / Optuna)
 - [ ] Deep learning models (LSTM, Autoencoders)
 - [ ] SHAP / LIME for per-prediction explainability
-- [ ] Kubernetes deployment
+
+**Phase 3 — Deployment & Integration**
+- [ ] Kubernetes (K8s) deployment
 - [ ] AWS / Azure cloud integration
-- [ ] Email/SMS alerts for high-risk transactions
 - [ ] Payment gateway integration (Stripe, PayPal)
-- [ ] Mobile application (iOS / Android)
 - [ ] API rate limiting and OAuth authentication
+- [ ] Mobile application (iOS / Android)
 
 ---
 
