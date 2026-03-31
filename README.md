@@ -17,6 +17,31 @@
 </div>
 
 ---
+# Credit Card Fraud Detection System
+
+[![MLOps CI/CD Pipeline](https://github.com/suvan-agrawal/Credit-Card-Fraud-Detection-Website/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/suvan-agrawal/Credit-Card-Fraud-Detection-Website/actions/workflows/ci-cd.yml)
+[![Live Demo](https://img.shields.io/badge/demo-live%20✓-success?style=for-the-badge&logo=render)](https://fraud-detection-XXXXX.onrender.com)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://www.docker.com/)
+
+> **🚀 [LIVE DEMO - CLICK HERE](https://fraud-detection-XXXXX.onrender.com)** 
+> 
+> ML-powered fraud detection system with complete MLOps pipeline: CI/CD, Docker containerization, real-time monitoring, and explainable AI
+
+---
+
+## 🌐 Live Deployment
+
+**🔗 Production URL:** https://fraud-detection-website-m0wd.onrender.com/
+
+
+
+**Deployment Info:**
+- Platform: Render.com (Docker)
+- Auto-Deploy: Enabled (CI/CD)
+- Status: 🟢 Live
+
+---
 
 ## 📖 Overview
 
