@@ -434,13 +434,13 @@ Every code push automatically triggers:
 
 ---
 
-## 🎯 MLOps Features
+## MLOps Features
 
-1. **Model Versioning** — Track model versions with metadata and performance history
-2. **Continuous Integration** — Automated testing on every commit via GitHub Actions
-3. **Containerization** — Docker + Docker Compose for consistent, reproducible deployment
-4. **Monitoring** — Real-time health checks, performance tracking, and alerting
-5. **Explainability** — Feature importance surfaces the reasoning behind every prediction
+- **Version Control:** Git for code, DVC for data/models
+- **Experiment Tracking:** DVC metrics and parameters
+- **Reproducibility:** `dvc repro` to reproduce training
+- **CI/CD:** GitHub Actions automated testing
+- **Deployment:** Docker + Render.com
 
 ---
 

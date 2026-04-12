@@ -1,0 +1,12 @@
+stages:
+  train:
+    cmd: python train_model.py
+    deps:
+      - Dataset/fraud_dataset_100k.csv
+    params:
+      - model
+    outs:
+      - model/fraud_detection_complete.pkl
+    metrics:
+      - model_metrics.json:
+          cache: false
