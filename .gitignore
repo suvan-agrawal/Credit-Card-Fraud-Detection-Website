@@ -47,10 +47,14 @@ temp/
 # Windows
 Thumbs.db
 
-# Git-LFS (for large files)
-*.csv
+# DVC (for large files)
+/Dataset/*.csv
+.dvc/
+.dvc/cache/
+.dvc/tmp/
 *.xlsx
 
 # Keep these files (override above rules if needed)
 !requirements.txt
 !README.md
+!/Dataset/*.csv.dvc
